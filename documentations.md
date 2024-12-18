@@ -9,6 +9,12 @@
     - [Authentication](#authentication)
     - [Models.py](#modelspy)
       - [Users Class](#users-class)
+    - [Routes](#routes)
+      - [auth/utils.py](#authutilspy)
+      - [messages/routes.py](#messagesroutespy)
+      - [users/routes.py](#usersroutespy)
+      - [app/routes.py](#approutespy)
+      - [app/models.py](#appmodelspy)
 
 ## Purpose
 
@@ -69,3 +75,37 @@ The purpose of the documentation file is to describe a high level documentation 
     - Error Logging: Added optional logging for failed authentication attempts.
     - Improved Authentication: Suggested an alternative for email-based login.
     - Optimized Relationship Query: The is_followed_by and is_following were updated to use efficient database queries for better scalability.
+  
+### Routes
+  #### auth/utils.py
+    - Added Type Hints: Improved code readability by explicitly defining the types of function arguments and return values.
+    - Optimized Queries: Replaced .first() with exists() for better performance in large datasets.
+    - Preserved Functionality: The logic and purpose of the functions remain unchanged while improving efficiency and clarity.
+
+  #### messages/routes.py
+    - Added Type Hints: Clarified the return type of each route. 
+    - Refactored Ownership Check: Encapsulated the ownership check for deletion into a helper function for reusability. 
+    - Improved Flash Messages: Flash messages now include contextual details (e.g., part of the message text). 
+    - Added Logging: Debug and warning logs provide better traceability for key actions. 
+    - Preserved Functionality: Core logic remains unchanged, ensuring that the app continues to function as expected.
+
+  #### users/routes.py
+    - Added type hints for improved readability.
+    - Introduced pagination to list_users and users_show for better scalability.
+    - Improved logging for follower actions and user deletion.
+    - Simplified flash messages for clarity.
+
+  #### app/routes.py
+    - Removed Unused Imports: Cleaned up imports to include only the required modules and classes. 
+    - Added Type Hints: Clarified the return types for all functions.
+    - Improved Error Handling: Handled potential database errors when fetching messages for authenticated users.
+    - Added Logging: Logged homepage access and database errors for better traceability.
+    - Configurable Caching: Introduced a configuration option to enable or disable caching, making the app more adaptable to production and development environments.
+
+  #### app/models.py
+    - Added Type Hints for improved readability.
+    - Optimized Methods for checking followers and following relationships.
+    - Enhanced __repr__ Methods for all models.
+    - Refined signup Logic by centralizing db.session.commit().
+    - Validated Input in the signup method to avoid invalid user creation.
+    - Removed unique=True constraint from Likes.message_id to allow multiple likes for the same message.
