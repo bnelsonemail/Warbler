@@ -1,22 +1,29 @@
-
-
 /warbler
 │
 ├── app/                           # Main Flask application folder
-│   ├── __init__.py                # (Optional) Initialize the Flask app
+│   ├── __init__.py                # Initialize the Flask app
 │   ├── app.py                     # Entry point for running the Flask app
 │   ├── forms.py                   # Flask-WTForms for handling forms
 │   ├── models.py                  # Database models
 │
 │   ├── config/                    # Configuration settings
+│   │   ├── __init__.py            # Init for config package
 │   │   └── settings.py            # App-specific configurations
 │
 │   ├── generator/                 # CSV generation and helper scripts
+│   │   ├── __init__.py            # Init for generator package
 │   │   ├── create_csvs.py         # Script to generate CSVs
 │   │   ├── follows.csv            # Sample follow data
 │   │   ├── helpers.py             # Utility/helper functions
 │   │   ├── messages.csv           # Sample message data
 │   │   └── users.csv              # Sample user data
+│
+│   ├── migrations/                # Database migration files
+│   │   ├── __init__.py            # Init for migrations package
+│   │   ├── env.py                 # Migration environment configuration
+│   │   ├── script.py.mako         # Template for migration scripts
+│   │   └── versions/              # Folder for migration versions
+│   │       ├── __init__.py        # (Optional) Init for versions folder
 │
 │   ├── static/                    # Static assets (CSS, images, etc.)
 │   │   ├── favicon.ico            # Favicon for the app
@@ -44,6 +51,7 @@
 │   │       └── signup.html        # Signup page
 │
 │   ├── test/                      # Unit tests for models and views
+│   │   ├── __init__.py            # Init for test package
 │   │   ├── test_message_model.py  # Tests for Message model
 │   │   ├── test_message_views.py  # Tests for Message views
 │   │   ├── test_user_model.py     # Tests for User model
@@ -54,3 +62,5 @@
 ├── .gitignore                     # Specifies files for Git to ignore
 ├── requirements.txt               # List of project dependencies
 └── seed.py                        # Script to seed the database with initial data
+└── structure.md                   # File to show the file structure of the project
+└── .env                           # environmental variables file 
