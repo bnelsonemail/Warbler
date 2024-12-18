@@ -3,8 +3,11 @@
 from flask import render_template, redirect, url_for, flash, request, current_app
 from flask_login import login_user, logout_user, login_required
 from app.models import db, User
-from app.forms import LoginForm, RegistrationForm
+from app.forms import LoginForm, RegistrationForm, UserProfileForm
 from . import auth_bp
+
+auth_bp = Blueprint('auth', __name__)
+
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -118,4 +121,20 @@ def logout():
 
 
 
+@auth_bp.route('/users/profile', methods=["GET", "POST"])
+@login_required
+def profile():
+    """Update profile for the current user."""
+    form = UserProfileForm(obj=current_user)
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        current_user.bio = form.bio.data
+        current_user.location = form.location.data
+        current_user.image_url = form.image_url.data or "/static/images/default-pic.png"
+        current_user.header_image_url = form.header_image_url.data or "/static/images/warbler-hero.jpg"
 
+        db.session.commit()
+        flash("Profile updated successfully.", "success")
+        return redirect(url_for('users.users_show', user_id=current_user.id))
+    return render_template('users/edit.html', form=form)
