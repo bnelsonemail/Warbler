@@ -1,6 +1,6 @@
 """app/auth/routes.py"""
 
-from flask import render_template, redirect, url_for, flash, request, current_app
+from flask import render_template, redirect, url_for, flash, request, current_app, Blueprint
 from flask_login import login_user, logout_user, login_required
 from app.models import db, User
 from app.forms import LoginForm, RegistrationForm, UserProfileForm
@@ -47,7 +47,7 @@ def login():
 
 
 
-@auth_bp.route("/register", methods=["GET", "POST"])
+@auth_bp.route("/signup", methods=["GET", "POST"])
 def register():
     """User registration page."""
     form = RegistrationForm()
@@ -78,7 +78,7 @@ def register():
             if existing_user_by_email:
                 flash("Email already exists.", "danger")
                 current_app.logger.debug("Email already exists.")
-                return render_template("register.html", form=form)
+                return render_template("signup.html", form=form)
 
             # Create the user
             try:
@@ -102,7 +102,7 @@ def register():
             current_app.logger.debug(f"Form validation failed: {form.errors}")
             flash("Please correct the errors in the form.", "danger")
 
-    return render_template("register.html", form=form)
+    return render_template("signup.html", form=form)
 
 
 

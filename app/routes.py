@@ -1,14 +1,17 @@
 """app/routes.py"""
 
-from flask import render_template, flash, current_app
+from flask import render_template, flash, current_app, Blueprint
 from flask_login import current_user
 from sqlalchemy.exc import SQLAlchemyError
-from models import Message
+from app.models import Message
 
 ##############################################################################
 # Homepage and error pages
 
-@app.route('/')
+main_bp = Blueprint('main', __name__)
+
+
+@main_bp.route('/')
 def homepage() -> str:
     """Show homepage.
 
@@ -27,7 +30,7 @@ def homepage() -> str:
         return render_template('home.html', messages=messages)
     return render_template('home-anon.html')
 
-@app.after_request
+@main_bp.after_request
 def add_header(response):
     """Add non-caching headers.
 

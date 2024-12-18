@@ -17,6 +17,7 @@
       - [app/models.py](#appmodelspy)
     - [Seed](#seed)
     - [app/__init__.py](#appinitpy)
+    - [Forms.py](#formspy)
 
 ## Purpose
 
@@ -125,3 +126,11 @@ The purpose of the documentation file is to describe a high level documentation 
   - Added Debug Conditional for Route Printing: Restricted route printing to the development environment.
   - Simplified load_user: Used the existing session without explicit context management.
   - Improved Code Readability: Organized the file into logical sections for easier navigation.
+
+### Forms.py
+  - Capitalized Field Labels for consistency.
+  - Added Placeholder Text to improve user experience.
+  - Added a UserProfileForm to support profile editing.
+  - Enhanced Validators:
+    - Added Length constraints to fields like text and bio.
+    - Made PasswordField consistent across forms.

@@ -3,6 +3,7 @@
 from sqlalchemy import exists
 from app.models import db, User
 
+
 def user_exists_by_email(email: str) -> bool:
     """Check if a user exists by email.
 
