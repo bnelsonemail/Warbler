@@ -5,6 +5,10 @@
   - [Table of Contents](#table-of-contents)
   - [Purpose](#purpose)
   - [File Structure](#file-structure)
+  - [Removed and Updated Content](#removed-and-updated-content)
+    - [Authentication](#authentication)
+    - [Models.py](#modelspy)
+      - [Users Class](#users-class)
 
 ## Purpose
 
@@ -46,4 +50,22 @@ The purpose of the documentation file is to describe a high level documentation 
     5. Improved Testing:
       - Blueprints allow for isolated testing of specific modules, making it easier to write tests for only the auth or messages routes without interfering with other parts of the app.
 
+- **Authentication -** the "auth" folder is used for the logic and templates for authentication.  The following files will be used:
+  - **__init__.py:** This is the file that makes the folders act like modules
+  - **utils.py:** This file should contain helper functions that are not tied to a specific model or HTTP route but are reusable across the authentication module.  Any reusable utility functions for authentication or session management will go in this file.
+  - **routes.py:** This file should focus on handling HTTP requests and responses. It interacts with forms, leverages model methods, and uses Flask-Login for session management.
 
+## Removed and Updated Content
+
+### Authentication
+  - Original Auth code was placed in the wrong location.  
+  - The original code was not very robust.  
+  - Removing the original code can be replaced with Flask-Login's built-in functions and creates less custom code.
+
+### Models.py
+  #### Users Class
+    - Optimized Relationships: Improved is_followed_by and is_following methods with database queries for scalability.
+    - Simplified Password Logic: Moved hashing to set_password for consistency.
+    - Error Logging: Added optional logging for failed authentication attempts.
+    - Improved Authentication: Suggested an alternative for email-based login.
+    - Optimized Relationship Query: The is_followed_by and is_following were updated to use efficient database queries for better scalability.
