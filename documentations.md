@@ -63,6 +63,7 @@ The purpose of the documentation file is to describe a high level documentation 
   - **__init__.py:** This is the file that makes the folders act like modules
   - **utils.py:** This file should contain helper functions that are not tied to a specific model or HTTP route but are reusable across the authentication module.  Any reusable utility functions for authentication or session management will go in this file.
   - **routes.py:** This file should focus on handling HTTP requests and responses. It interacts with forms, leverages model methods, and uses Flask-Login for session management.
+  - **templates:** After many iterations and debugging, it was determined that Flask was not willing to look in the proper file folder for templates.  Therefore the templates for auth were moved to app/templates/auth.
 
 ## Removed and Updated Content
 

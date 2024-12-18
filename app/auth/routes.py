@@ -47,7 +47,7 @@ def login():
 
 
 
-@auth_bp.route("/signup", methods=["GET", "POST"])
+@auth_bp.route("register", methods=["GET", "POST"])
 def register():
     """User registration page."""
     form = RegistrationForm()
@@ -102,10 +102,23 @@ def register():
             current_app.logger.debug(f"Form validation failed: {form.errors}")
             flash("Please correct the errors in the form.", "danger")
 
-    return render_template("signup.html", form=form)
+    return render_template("auth/register.html", form=form)
 
 
+# @auth_bp.route("auth/test", methods=["GET", "POST"])
+# def test():
+#     return render_template("test.html")
 
+
+# @auth_bp.route("register", methods=["GET", "POST"])
+# def register():
+#     print("=====================================================")
+#     template_path = "auth/register.html"
+#     print(f"Rendering {template_path} from {current_app.jinja_loader.searchpath}")
+#     print(f"Template search paths for auth_bp: {current_app.jinja_loader.searchpath}")
+
+#     print("======================================================")
+#     return render_template(template_path)
 
 
 
@@ -138,3 +151,9 @@ def profile():
         flash("Profile updated successfully.", "success")
         return redirect(url_for('users.users_show', user_id=current_user.id))
     return render_template('users/edit.html', form=form)
+
+
+
+@auth_bp.route("/test")
+def test_route():
+    return "Test route works!"
