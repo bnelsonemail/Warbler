@@ -1,7 +1,7 @@
 /warbler
 │
 ├── app/                           # Main Flask application folder
-│   ├── __init__.py                # Initialize the Flask app
+│   ├── __init__.py                # Initialize the Flask app, register blueprints
 │   ├── app.py                     # Entry point for running the Flask app
 │   ├── forms.py                   # Flask-WTForms for handling forms
 │   ├── models.py                  # Database models
@@ -10,20 +10,37 @@
 │   │   ├── __init__.py            # Init for config package
 │   │   └── settings.py            # App-specific configurations
 │
-│   ├── generator/                 # CSV generation and helper scripts
-│   │   ├── __init__.py            # Init for generator package
-│   │   ├── create_csvs.py         # Script to generate CSVs
-│   │   ├── follows.csv            # Sample follow data
-│   │   ├── helpers.py             # Utility/helper functions
-│   │   ├── messages.csv           # Sample message data
-│   │   └── users.csv              # Sample user data
+│   ├── auth/                      # Authentication-related routes and logic
+│   │   ├── __init__.py            # Init for auth blueprint
+│   │   ├── routes.py              # Routes for login, logout, signup
+│   │   ├── utils.py               # Helper functions like `do_login`, `do_logout`
+│   │   └── templates/             # Templates for auth-related pages
+│   │       ├── login.html         # Login page
+│   │       ├── signup.html        # Signup page
+│
+│   ├── users/                     # User-related routes and logic
+│   │   ├── __init__.py            # Init for users blueprint
+│   │   ├── routes.py              # Routes for user profiles, followers
+│   │   └── templates/             # Templates for user-related pages
+│   │       ├── detail.html        # User profile detail
+│   │       ├── edit.html          # Edit user profile
+│   │       ├── followers.html     # View followers
+│   │       ├── following.html     # View following
+│   │       ├── index.html         # List of users
+│   │       ├── show.html          # Show user profile
+│
+│   ├── messages/                  # Message-related routes and logic
+│   │   ├── __init__.py            # Init for messages blueprint
+│   │   ├── routes.py              # Routes for creating, showing, deleting messages
+│   │   └── templates/             # Templates for message-related pages
+│   │       ├── new.html           # New message form
+│   │       ├── show.html          # View individual message
 │
 │   ├── migrations/                # Database migration files
 │   │   ├── __init__.py            # Init for migrations package
 │   │   ├── env.py                 # Migration environment configuration
 │   │   ├── script.py.mako         # Template for migration scripts
 │   │   └── versions/              # Folder for migration versions
-│   │       ├── __init__.py        # (Optional) Init for versions folder
 │
 │   ├── static/                    # Static assets (CSS, images, etc.)
 │   │   ├── favicon.ico            # Favicon for the app
@@ -31,24 +48,20 @@
 │   │   └── stylesheets/           # Folder for CSS
 │   │       └── style.css          # Main stylesheet for the app
 │
-│   ├── templates/                 # Jinja2 templates for rendering HTML
+│   ├── templates/                 # Base templates shared across the app
 │   │   ├── base.html              # Base template (extends other pages)
 │   │   ├── home-anon.html         # Anonymous user home page
 │   │   ├── home.html              # Logged-in user home page
-│   │
-│   │   ├── messages/              # Message-related templates
-│   │   │   ├── new.html           # New message form
-│   │   │   └── show.html          # View individual message
-│   │
-│   │   └── users/                 # User-related templates
-│   │       ├── detail.html        # User profile detail
-│   │       ├── edit.html          # Edit user profile
-│   │       ├── followers.html     # View followers
-│   │       ├── following.html     # View following
-│   │       ├── index.html         # List of users
-│   │       ├── login.html         # Login page
-│   │       ├── show.html          # Show user profile
-│   │       └── signup.html        # Signup page
+│   │   ├── 404.html               # Error page for 404
+│   │   ├── 500.html               # Error page for 500
+│
+│   ├── generator/                 # CSV generation and helper scripts
+│   │   ├── __init__.py            # Init for generator package
+│   │   ├── create_csvs.py         # Script to generate CSVs
+│   │   ├── follows.csv            # Sample follow data
+│   │   ├── helpers.py             # Utility/helper functions
+│   │   ├── messages.csv           # Sample message data
+│   │   └── users.csv              # Sample user data
 │
 │   ├── test/                      # Unit tests for models and views
 │   │   ├── __init__.py            # Init for test package
@@ -61,6 +74,8 @@
 │
 ├── .gitignore                     # Specifies files for Git to ignore
 ├── requirements.txt               # List of project dependencies
-└── seed.py                        # Script to seed the database with initial data
-└── structure.md                   # File to show the file structure of the project
-└── .env                           # environmental variables file 
+├── seed.py                        # Script to seed the database with initial data
+├── structure.md                   # File to show the file structure of the project
+├── documentation.md               # File to the changes to the project
+├── .env                           # Environmental variables file
+└── run.py                         # Script to run the app using create_app()
