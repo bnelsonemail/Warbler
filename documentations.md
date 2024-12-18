@@ -15,6 +15,8 @@
       - [users/routes.py](#usersroutespy)
       - [app/routes.py](#approutespy)
       - [app/models.py](#appmodelspy)
+    - [Seed](#seed)
+    - [app/__init__.py](#appinitpy)
 
 ## Purpose
 
@@ -109,3 +111,17 @@ The purpose of the documentation file is to describe a high level documentation 
     - Refined signup Logic by centralizing db.session.commit().
     - Validated Input in the signup method to avoid invalid user creation.
     - Removed unique=True constraint from Likes.message_id to allow multiple likes for the same message.
+
+### Seed
+  - Encapsulated Logic: Broke the script into functions for better reusability and readability. 
+  - Added Logging: Included logs to track the progress and success of each step. 
+  - Introduced Error Handling: Added try-except blocks to ensure graceful handling of errors during seeding.
+  - Made File Paths Configurable: Allowed file paths to be set via environment variables for flexibility.
+  - Validated Input Data: Checked if files exist and are valid CSVs before processing.
+
+### app/__init__.py
+  - Refactored Configuration Logic: Extracted configuration loading into configure_app.
+  - Moved Error Handlers: Centralized error handler definitions in register_error_handlers.
+  - Added Debug Conditional for Route Printing: Restricted route printing to the development environment.
+  - Simplified load_user: Used the existing session without explicit context management.
+  - Improved Code Readability: Organized the file into logical sections for easier navigation.
