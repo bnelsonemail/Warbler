@@ -3,6 +3,8 @@
 from datetime import datetime
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
@@ -39,7 +41,7 @@ class Likes(db.Model):
         return f"<Likes User {self.user_id} likes Message {self.message_id}>"
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     """User in the system."""
     __tablename__ = 'users'
 
@@ -81,6 +83,26 @@ class User(db.Model):
         """Check if this user is following `other_user`."""
         return other_user in self.following
 
+    # Flask-Login required methods
+    @property
+    def is_active(self) -> bool:
+        """Return True if the user is active."""
+        return True
+
+    @property
+    def is_authenticated(self) -> bool:
+        """Return True if the user is authenticated."""
+        return True
+
+    @property
+    def is_anonymous(self) -> bool:
+        """Return False for authenticated users."""
+        return False
+
+    def get_id(self) -> str:
+        """Return the unique ID for the user."""
+        return str(self.id)
+    
     @classmethod
     def signup(cls, username: str, email: str, password: str, image_url: str = None) -> "User":
         """Sign up a new user."""

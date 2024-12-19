@@ -3,15 +3,15 @@
 import os
 import logging
 from csv import DictReader
-from app import db
-from models import User, Message, Follows
+from app import db, create_app
+from app.models import User, Message, Follows
 
 logging.basicConfig(level=logging.INFO)
 
 # Configurable file paths
-USERS_CSV = os.getenv('USERS_CSV', 'generator/users.csv')
-MESSAGES_CSV = os.getenv('MESSAGES_CSV', 'generator/messages.csv')
-FOLLOWS_CSV = os.getenv('FOLLOWS_CSV', 'generator/follows.csv')
+USERS_CSV = os.getenv('USERS_CSV', 'app/generator/users.csv')
+MESSAGES_CSV = os.getenv('MESSAGES_CSV', 'app/generator/messages.csv')
+FOLLOWS_CSV = os.getenv('FOLLOWS_CSV', 'app/generator/follows.csv')
 
 def validate_csv(file_path):
     """Check if the CSV file exists and is readable."""
@@ -45,16 +45,18 @@ def seed_follows():
     logging.info("Follows seeded successfully.")
 
 if __name__ == "__main__":
-    logging.info("Dropping and creating tables...")
-    db.drop_all()
-    db.create_all()
+    app = create_app()  # Create the Flask app instance
+    with app.app_context():  # Wrap the operations in an app context
+        logging.info("Dropping and creating tables...")
+        db.drop_all()
+        db.create_all()
 
-    try:
-        seed_users()
-        seed_messages()
-        seed_follows()
-        db.session.commit()
-        logging.info("Database seeding completed successfully.")
-    except Exception as e:
-        logging.error(f"An error occurred during seeding: {e}")
-        db.session.rollback()
+        try:
+            seed_users()
+            seed_messages()
+            seed_follows()
+            db.session.commit()
+            logging.info("Database seeding completed successfully.")
+        except Exception as e:
+            logging.error(f"An error occurred during seeding: {e}")
+            db.session.rollback()

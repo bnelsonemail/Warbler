@@ -1,6 +1,6 @@
 """app/routes.py"""
 
-from flask import render_template, flash, current_app, Blueprint
+from flask import render_template, flash, current_app, Blueprint, g
 from flask_login import current_user
 from sqlalchemy.exc import SQLAlchemyError
 from app.models import Message
@@ -9,6 +9,19 @@ from app.models import Message
 # Homepage and error pages
 
 main_bp = Blueprint('main', __name__)
+
+
+@main_bp.before_request
+def load_logged_in_user():
+    """Set g.user to the current user if authenticated."""
+    g.user = current_user if current_user.is_authenticated else None
+
+
+@main_bp.route('/test')
+def test_g_user():
+    if g.user:
+        return f"Logged in as: {g.user.username}"
+    return "No user is logged in."
 
 
 @main_bp.route('/')

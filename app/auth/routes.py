@@ -14,33 +14,34 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         current_app.logger.debug("Form validation succeeded.")
-        
-        # Log the email being queried
-        current_app.logger.debug(f"Looking up user with email: {form.email.data}")
-        user = User.query.filter_by(email=form.email.data).first()
-        
+
+        # Log the username being queried
+        current_app.logger.debug(f"Looking up user with username: {form.username.data}")
+        user = User.query.filter_by(username=form.username.data).first()
+
         if user:
             current_app.logger.debug(f"User found: {user}")
-            
+
             # Log password check
             if user.check_password(form.password.data):
                 current_app.logger.debug("Password matched.")
                 login_user(user)
                 flash("Logged in successfully!", "success")  # Added message required for the test case
-                return redirect(url_for('main.show_all_playlists'))
+                return redirect(url_for('main.homepage'))  # Redirect to a homepage or desired route
 
             else:
                 current_app.logger.debug("Invalid password.")
         else:
-            current_app.logger.debug(f"No user found with email: {form.email.data}")
+            current_app.logger.debug(f"No user found with username: {form.username.data}")
         
-        flash("Invalid email or password.", "danger")
+        flash("Invalid username or password.", "danger")
     else:
         if request.method == 'POST':
             current_app.logger.debug(f"Form validation failed: {form.errors}")
 
     # Always return the rendered template if no redirect happens
-    return render_template('login.html', form=form)
+    return render_template('auth/login.html', form=form)
+
 
 
 
