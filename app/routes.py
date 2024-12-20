@@ -11,17 +11,11 @@ from app.models import Message
 main_bp = Blueprint('main', __name__)
 
 
-@main_bp.before_request
-def load_logged_in_user():
-    """Set g.user to the current user if authenticated."""
-    g.user = current_user if current_user.is_authenticated else None
+# @main_bp.before_request
+# def load_logged_in_user():
+#     """Set g.user to the current user if authenticated."""
+#     g.user = current_user if current_user.is_authenticated else None
 
-
-@main_bp.route('/test')
-def test_g_user():
-    if g.user:
-        return f"Logged in as: {g.user.username}"
-    return "No user is logged in."
 
 
 @main_bp.route('/')

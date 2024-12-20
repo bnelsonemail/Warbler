@@ -105,6 +105,7 @@ The purpose of the documentation file is to describe a high level documentation 
     - Improved Error Handling: Handled potential database errors when fetching messages for authenticated users.
     - Added Logging: Logged homepage access and database errors for better traceability.
     - Configurable Caching: Introduced a configuration option to enable or disable caching, making the app more adaptable to production and development environments.
+    - Removed logged in user from app/routes and placed as app.before_request decorator function inside create_app
 
   #### app/models.py
     - Added Type Hints for improved readability.

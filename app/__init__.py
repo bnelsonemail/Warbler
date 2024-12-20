@@ -2,11 +2,11 @@
 
 import os
 from dotenv import load_dotenv
-from flask import Flask, render_template
+from flask import Flask, render_template, g
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 from app.config.settings import config
 from app.models import db, User
 from app.routes import main_bp
@@ -120,6 +120,10 @@ def create_app(config_name=None):
     app.register_blueprint(users_bp, url_prefix="/users")
     app.register_blueprint(messages_bp, url_prefix="/messages")
     app.register_error_handler(CSRFError, handle_csrf_error)
+    
+    @app.before_request
+    def load_logged_in_user():
+        g.user = current_user if current_user.is_authenticated else None
     
     # Print all routes for debugging
     for rule in app.url_map.iter_rules():
