@@ -33,6 +33,9 @@ def users_show(user_id: int) -> str:
     print(f"Requested user_id: {user_id}")
     user = User.query.get_or_404(user_id)
     print("User fetched:", user)
+    print("+++++++++++++++++++++++++++")
+    print(f"Header Image URL: {user.header_image_url}")
+    print(f"Profile Image URL: {user.image_url}")
     print("================================")
     page = request.args.get('page', 1, type=int)
     per_page = 20

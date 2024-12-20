@@ -1,40 +1,101 @@
 {% extends 'users/detail.html' %}
+
 {% block user_details %}
-  <div class="col-sm-9">
+<div class="container-fluid p-0">
+  <!-- Header Image Section -->
+  <div style="position: relative; background-color: #f8f9fa;">
+    <img src="{{ user.header_image_url or url_for('static', filename='images/warbler-hero.jpg') }}" 
+         alt="Header image for {{ user.username }}" 
+         class="img-fluid w-100" 
+         style="height: 400px; object-fit: cover;"
+         onerror="this.src='/static/images/warbler-hero.jpg'; console.error('Header image failed to load, using fallback.');">
+
+    <!-- User Image (Overlapping Header Image) -->
+    <div style="position: absolute; bottom: -60px; left: 40px;">
+      <img src="{{ user.image_url or url_for('static', filename='images/warbler-profile.jpg') }}" 
+           alt="Profile image for {{ user.username }}" 
+           class="rounded-circle border border-white shadow" 
+           style="width: 140px; height: 140px; object-fit: cover;"
+           onerror="this.src='/static/images/warbler-profile.jpg'; console.error('Profile image failed to load, using fallback.');">
+      <h4 class="mt-3">@{{ user.username }}</h4>
+    </div>
+  </div>
+
+  <!-- Add Margin to Push Content Down -->
+  <div class="container" style="margin-top: 100px;">
+    <!-- User Stats Section -->
+    <div class="row justify-content-between align-items-center py-3 px-4" 
+         style="background-color: #ffffff; border-radius: 10px;">
+      <div class="col-md-auto text-center">
+        <p class="mb-0"><strong>Messages</strong></p>
+        <h5>
+          <a href="/users/{{ user.id }}" class="text-decoration-none text-dark">
+            {{ user.messages | length }}
+          </a>
+        </h5>
+      </div>
+      <div class="col-md-auto text-center">
+        <p class="mb-0"><strong>Following</strong></p>
+        <h5>
+          <a href="/users/{{ user.id }}/following" class="text-decoration-none text-dark">
+            {{ user.following | length }}
+          </a>
+        </h5>
+      </div>
+      <div class="col-md-auto text-center">
+        <p class="mb-0"><strong>Followers</strong></p>
+        <h5>
+          <a href="/users/{{ user.id }}/followers" class="text-decoration-none text-dark">
+            {{ user.followers | length }}
+          </a>
+        </h5>
+      </div>
+    </div>
+  </div>
+
+  <!-- Following List Section -->
+  <div class="container py-4 mt-3">
     <div class="row">
-
       {% for followed_user in user.following %}
-
-        <div class="col-lg-4 col-md-6 col-12">
-          <div class="card user-card">
-            <div class="card-inner">
-              <div class="image-wrapper">
-                <img src="{{ followed_user.header_image_url }}" alt="" class="card-hero">
-              </div>
-              <div class="card-contents">
-                <a href="/users/{{ followed_user.id }}" class="card-link">
-                  <img src="{{ followed_user.image_url }}" alt="Image for {{ followed_user.username }}" class="card-image">
-                  <p>@{{ followed_user.username }}</p>
-                </a>
-                {% if g.user.is_following(followed_user) %}
-                  <form method="POST"
-                        action="/users/stop-following/{{ followed_user.id }}">
-                    <button class="btn btn-primary btn-sm">Unfollow</button>
-                  </form>
-                {% else %}
-                  <form method="POST" action="/users/follow/{{ followed_user.id }}">
-                    <button class="btn btn-outline-primary btn-sm">Follow</button>
-                  </form>
-                {% endif %}
-
-              </div>
-              <p class="card-bio">BIO HERE</p>
+      <div class="col-lg-4 col-md-6 col-12">
+        <div class="card shadow-sm mb-4">
+          <div class="card-inner">
+            <!-- Header Image -->
+            <div class="image-wrapper">
+              <img src="{{ followed_user.header_image_url or url_for('static', filename='images/warbler-hero.jpg') }}" 
+                   alt="Header image for {{ followed_user.username }}" 
+                   class="card-img-top" 
+                   style="height: 150px; object-fit: cover;"
+                   onerror="this.src='/static/images/warbler-hero.jpg'; console.error('Header image failed to load, using fallback.');">
+            </div>
+            <!-- User Info -->
+            <div class="card-body text-center">
+              <a href="/users/{{ followed_user.id }}" class="text-decoration-none">
+                <img src="{{ followed_user.image_url or url_for('static', filename='images/warbler-profile.jpg') }}" 
+                     alt="Profile image for {{ followed_user.username }}" 
+                     class="rounded-circle mb-2"
+                     style="width: 80px; height: 80px; object-fit: cover;"
+                     onerror="this.src='/static/images/warbler-profile.jpg'; console.error('Profile image failed to load, using fallback.');">
+                <h5 class="card-title">@{{ followed_user.username }}</h5>
+              </a>
+              <p class="card-text text-muted">{{ followed_user.bio or 'No bio available.' }}</p>
+              <p class="card-text small"><i class="fa fa-map-marker"></i> {{ followed_user.location or 'Location not provided' }}</p>
+              <!-- Follow/Unfollow Buttons -->
+              {% if g.user.is_following(followed_user) %}
+              <form method="POST" action="/users/stop-following/{{ followed_user.id }}">
+                <button class="btn btn-primary btn-sm">Unfollow</button>
+              </form>
+              {% else %}
+              <form method="POST" action="/users/follow/{{ followed_user.id }}">
+                <button class="btn btn-outline-primary btn-sm">Follow</button>
+              </form>
+              {% endif %}
             </div>
           </div>
         </div>
-
+      </div>
       {% endfor %}
-
     </div>
   </div>
+</div>
 {% endblock %}
