@@ -50,6 +50,11 @@
         <p class="mb-0"><strong>Likes</strong></p>
         <h5 class="text-dark">{{ likes | length }}</h5>
       </div>
+      <div class="col-md-auto text-end">
+        <a href="/users/{{ g.user.id }}/edit" class="btn btn-outline-primary btn-sm">
+          <i class="fa fa-edit"></i> Edit Profile
+        </a>
+      </div>
     </div>
   </div>
 
@@ -92,4 +97,3 @@
   </div>
 </div>
 {% endblock %}
-

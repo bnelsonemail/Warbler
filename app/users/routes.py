@@ -107,3 +107,11 @@ def delete_user() -> str:
     flash("User deleted.", "info")
     current_app.logger.debug(f"User {current_user.username} deleted their account.")
     return redirect(url_for('auth.login'))
+
+
+@users_bp.route('/<int:user_id>/edit')
+@login_required
+def edit_user():
+    """edit current user profile."""
+    user = User.query.get_or_404(user_id)
+    return render_template('users/edit.html', user=user)
