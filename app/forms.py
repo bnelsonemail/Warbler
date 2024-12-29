@@ -1,8 +1,13 @@
 """app/forms.py"""
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField
+from wtforms import StringField, PasswordField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
+
+
+class LikeForm(FlaskForm):
+    submit = SubmitField('Like')
+    
 
 class MessageForm(FlaskForm):
     """Form for adding/editing messages."""

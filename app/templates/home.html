@@ -91,14 +91,14 @@
             <p class="mb-1">{{ msg.text }}</p>
             <div class="d-flex align-items-center">
               <form method="POST" action="{{ url_for('messages.like_message', message_id=msg.id) }}" class="me-2">
-                {{ csrf_token() }}
-                <button class="btn btn-sm {{ 'btn-primary' if msg.id in likes else 'btn-outline-secondary' }}">
-                  <i class="fa fa-thumbs-up"></i> 
-                  {{ 'Unlike' if msg.id in likes else 'Like' }}
+                {{ form.hidden_tag() }}  <!-- CSRF protection -->
+                <button type="submit" class="btn btn-sm {{ 'btn-primary' if msg.id in likes else 'btn-outline-secondary' }}">
+                  <i class="fa fa-thumbs-up"></i> {{ 'Unlike' if msg.id in likes else 'Like' }}
                 </button>
               </form>
-              <small class="text-muted">{{ msg.liked_by | length }} Likes</small>
+              <small class="text-muted">{{ msg.liked_by.all() | length }} Likes</small>
             </div>
+            
           </div>
         </li>
       {% endfor %}

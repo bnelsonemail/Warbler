@@ -4,6 +4,8 @@ from flask import render_template, flash, current_app, Blueprint, g
 from flask_login import current_user
 from sqlalchemy.exc import SQLAlchemyError
 from app.models import Message
+from app.forms import LikeForm
+
 
 ##############################################################################
 # Homepage and error pages
@@ -26,6 +28,7 @@ def homepage() -> str:
     - Anonymous users: Show the anonymous homepage.
     """
     current_app.logger.info("Homepage accessed.")
+    form = LikeForm()  # Create an instance of the LikeForm
     if current_user.is_authenticated:
         try:
             messages = (Message.query.order_by(Message.timestamp.desc())
@@ -34,8 +37,8 @@ def homepage() -> str:
             current_app.logger.error(f"Database error fetching messages: {e}")
             flash("Error loading messages. Please try again later.", "danger")
             messages = []
-        return render_template('home.html', messages=messages)
-    return render_template('home-anon.html')
+        return render_template('home.html', messages=messages, form=form)
+    return render_template('home-anon.html', form=form)
 
 @main_bp.after_request
 def add_header(response):
@@ -48,6 +51,8 @@ def add_header(response):
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"
     return response
+
+
 
 
 

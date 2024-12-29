@@ -1,6 +1,6 @@
 """app/messages/routes.py"""
 
-from flask import Blueprint, render_template, redirect, flash, url_for, current_app
+from flask import Blueprint, render_template, redirect, flash, url_for, current_app, request
 from flask_login import login_required, current_user
 from app.models import db, Message
 from app.forms import MessageForm
@@ -55,6 +55,7 @@ def like_message(message_id):
     print(f"Received request to like message ID: {message_id}")
     print(f"Form Data: {request.form}")
     print("====================================================")
+    
     message = Message.query.get_or_404(message_id)
 
     try:
