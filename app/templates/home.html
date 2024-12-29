@@ -48,7 +48,11 @@
       </div>
       <div class="col-md-auto text-center">
         <p class="mb-0"><strong>Likes</strong></p>
-        <h5 class="text-dark">{{ likes | length }}</h5>
+        <h5>
+          <a href="/users/{{ g.user.id }}/likes" class="text-decoration-none text-dark">
+            {{ likes | length }}
+          </a>
+        </h5>
       </div>
       <div class="col-md-auto text-end">
         <a href="/users/{{ g.user.id }}/edit" class="btn btn-outline-primary btn-sm">
@@ -85,11 +89,15 @@
               <span class="text-muted small">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
             </div>
             <p class="mb-1">{{ msg.text }}</p>
-            <form method="POST" action="/users/add_like/{{ msg.id }}" class="mt-2">
-              <button class="btn btn-sm {{ 'btn-primary' if msg.id in likes else 'btn-outline-secondary' }}">
-                <i class="fa fa-thumbs-up"></i> 
-              </button>
-            </form>
+            <div class="d-flex align-items-center">
+              <form method="POST" action="{{ url_for('main.like_message', message_id=msg.id) }}" class="me-2">
+                <button class="btn btn-sm {{ 'btn-primary' if msg.id in likes else 'btn-outline-secondary' }}">
+                  <i class="fa fa-thumbs-up"></i> 
+                  {{ 'Unlike' if msg.id in likes else 'Like' }}
+                </button>
+              </form>
+              <small class="text-muted">{{ msg.liked_by | length }} Likes</small>
+            </div>
           </div>
         </li>
       {% endfor %}

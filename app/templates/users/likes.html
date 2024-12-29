@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">{{ user.username }}'s Liked Warbles</h1>
+    <div class="row">
+        {% for message in user.likes %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-text">{{ message.text }}</p>
+                    <p class="text-muted">Posted by: 
+                        <a href="{{ url_for('users.show', user_id=message.user.id) }}">
+                            {{ message.user.username }}
+                        </a>
+                    </p>
+                    <span class="text-muted small">{{ message.timestamp.strftime('%b %d, %Y %H:%M') }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

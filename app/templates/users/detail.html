@@ -1,5 +1,21 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block content %}
-{% block user_details %}{% endblock user_details %}
-{% endblock content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ user.username }}</h1>
+            <p>Email: {{ user.email }}</p>
+            <p>Bio: {{ user.bio }}</p>
+            <p>Location: {{ user.location }}</p>
+            <p>
+                Liked Warbles: 
+                <a href="{{ url_for('users.show_liked_warbles', user_id=user.id) }}">
+                    {{ user.likes | length }}
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
