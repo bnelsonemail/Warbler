@@ -47,29 +47,45 @@ def messages_destroy(message_id: int) -> str:
     return redirect(url_for('users.users_show', user_id=current_user.id))
 
 
-@main_bp.route('/messages/<int:message_id>/like', methods=['POST'])
+@messages_bp.route('/messages/<int:message_id>/like', methods=['POST'])
 @login_required
 def like_message(message_id):
     """Like a warble."""
+    print("===================================================")
+    print(f"Received request to like message ID: {message_id}")
+    print(f"Form Data: {request.form}")
+    print("====================================================")
     message = Message.query.get_or_404(message_id)
 
-    # Prevent users from liking their own messages
-    if message.user_id == current_user.id:
-        flash("You cannot like your own warble!", "danger")
-        return redirect(url_for('main.homepage'))
+    try:
+        current_app.logger.debug(f"Received request to like message ID: {message_id}")
 
-    # Check if already liked
-    if message in current_user.likes:
-        flash("You already liked this warble.", "info")
-    else:
-        current_user.likes.append(message)
-        db.session.commit()
-        flash("Warble liked!", "success")
+        # Fetch message
+        message = Message.query.get_or_404(message_id)
+
+        # Prevent users from liking their own messages
+        if message.user_id == current_user.id:
+            flash("You cannot like your own warble!", "danger")
+            return redirect(url_for('main.homepage'))
+
+        # Check if already liked
+        if message in current_user.likes:
+            flash("You already liked this warble.", "info")
+        else:
+            current_user.likes.append(message)
+            db.session.commit()
+            flash("Warble liked!", "success")
+
+    except Exception as e:
+        db.session.rollback()  # Ensure rollback if the transaction fails
+        current_app.logger.error(f"Error processing like for message {message_id}: {e}")
+        return "An error occurred", 400
+
 
     return redirect(url_for('main.homepage'))
 
 
-@main_bp.route('/messages/<int:message_id>/unlike', methods=['POST'])
+@messages_bp.route('/messages/<int:message_id>/unlike', methods=['POST'])
 @login_required
 def unlike_message(message_id):
     """Unlike a warble."""

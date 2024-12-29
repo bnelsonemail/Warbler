@@ -41,6 +41,21 @@ class Likes(db.Model):
         return f"<Likes User {self.user_id} likes Message {self.message_id}>"
 
 
+# Association tables
+likes = db.Table(
+    'likes',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), primary_key=True),
+    db.Column('message_id', db.Integer, db.ForeignKey('messages.id', ondelete="CASCADE"), primary_key=True),
+    extend_existing=True  # Prevent re-declaration error
+)
+
+follows = db.Table(
+    'follows',
+    db.Column('user_following_id', db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), primary_key=True),
+    db.Column('user_being_followed_id', db.Integer, db.ForeignKey('users.id', ondelete="CASCADE"), primary_key=True),
+    extend_existing=True  # Prevent re-declaration error
+)
+
 class User(db.Model, UserMixin):
     """User in the system."""
     __tablename__ = 'users'
@@ -54,18 +69,23 @@ class User(db.Model, UserMixin):
     location = db.Column(db.Text)
     password = db.Column(db.Text, nullable=False)
 
-    messages = db.relationship('Message', backref="user")
+    messages = db.relationship('Message', backref="user", cascade="all, delete")
     followers = db.relationship(
         "User",
         secondary="follows",
-        primaryjoin=(Follows.user_being_followed_id == id),
-        secondaryjoin=(Follows.user_following_id == id),
+        primaryjoin=(follows.c.user_being_followed_id == id),
+        secondaryjoin=(follows.c.user_following_id == id),
         backref="following"
     )
-    likes = db.relationship('Message', secondary="likes")
+    likes = db.relationship(
+        'Message',
+        secondary="likes",
+        backref=db.backref('liked_by', lazy='dynamic'),
+        lazy='dynamic'
+    )
 
     def __repr__(self) -> str:
-        return f"<User #{self.id}: {self.username}, {self.email}>"
+        return f"<User #{self.id}: {self.username}, {self.email}, Location: {self.location}>"
 
     def set_password(self, password: str) -> None:
         """Hash and set the password for the user."""
@@ -82,6 +102,20 @@ class User(db.Model, UserMixin):
     def is_following(self, other_user: "User") -> bool:
         """Check if this user is following `other_user`."""
         return other_user in self.following
+
+    def has_liked_message(self, message: "Message") -> bool:
+        """Check if the user has liked a specific message."""
+        return self.likes.filter_by(id=message.id).count() > 0
+
+    def like_message(self, message: "Message") -> None:
+        """Like a message if not already liked."""
+        if not self.has_liked_message(message):
+            self.likes.append(message)
+
+    def unlike_message(self, message: "Message") -> None:
+        """Unlike a message if already liked."""
+        if self.has_liked_message(message):
+            self.likes.remove(message)
 
     # Flask-Login required methods
     @property
@@ -102,12 +136,15 @@ class User(db.Model, UserMixin):
     def get_id(self) -> str:
         """Return the unique ID for the user."""
         return str(self.id)
-    
+
     @classmethod
     def signup(cls, username: str, email: str, password: str, image_url: str = None) -> "User":
         """Sign up a new user."""
         if not username or not email or not password:
             raise ValueError("Username, email, and password are required.")
+        if cls.query.filter_by(username=username).first() or cls.query.filter_by(email=email).first():
+            raise ValueError("Username or email already exists.")
+
         user = cls(
             username=username,
             email=email,

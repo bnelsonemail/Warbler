@@ -117,7 +117,7 @@ def edit_user():
     return render_template('users/edit.html', user=user)
 
 
-@user_bp.route('/users/<int:user_id>/likes')
+@users_bp.route('/users/<int:user_id>/likes')
 @login_required
 def show_liked_warbles(user_id):
     """Show all warbles liked by the user."""
