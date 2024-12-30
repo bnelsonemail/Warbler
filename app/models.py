@@ -108,8 +108,7 @@ class User(db.Model, UserMixin):
 
     def has_liked_message(self, message: "Message") -> bool:
         """Check if the user has liked a specific message."""
-        liked_message_ids = {like.message_id for like in self.likes}
-        return message.id in liked_message_ids
+        return message.id in {msg.id for msg in self.likes}
 
 
     def like_message(self, message: "Message") -> None:
@@ -119,6 +118,7 @@ class User(db.Model, UserMixin):
 
     def unlike_message(self, message: "Message") -> None:
         """Unlike a message if already liked."""
+        current_app.logger.debug(f"Current user likes: {[msg.id for msg in current_user.likes]}")
         if self.has_liked_message(message):
             self.likes.remove(message)
 

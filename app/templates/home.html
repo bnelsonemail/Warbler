@@ -119,27 +119,27 @@
           <div class="d-flex align-items-center">
             <form
               method="POST"
-              action="{{ url_for('messages.like_message', message_id=msg.id) }}"
+              action="{{ url_for('messages.unlike_message', message_id=msg.id) if msg in g.user.likes else url_for('messages.like_message', message_id=msg.id) }}"
               class="me-2"
             >
               {{ form.hidden_tag() }}
-              <!-- CSRF protection -->
               {% if msg in g.user.likes %}
               <!-- Filled star for liked warble -->
-              <button type="submit" class="btn btn-link p-0 text-warning">
+              <button type="submit" class="btn btn-link p-0 text-warning" title="Unlike">
                 <i class="fas fa-star"></i>
               </button>
               {% else %}
               <!-- Empty star for unliked warble -->
-              <button type="submit" class="btn btn-link p-0 text-secondary">
+              <button type="submit" class="btn btn-link p-0 text-secondary" title="Like">
                 <i class="far fa-star"></i>
               </button>
               {% endif %}
             </form>
-            <small class="text-muted"
-              >{{ msg.liked_by.all() | length }} Likes</small
-            >
+            <small class="text-muted">
+              {{ msg.liked_by.all() | length }} Likes
+            </small>
           </div>
+          
         </div>
       </li>
       {% endfor %}

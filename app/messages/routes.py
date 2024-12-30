@@ -94,6 +94,10 @@ def like_message(message_id):
 def unlike_message(message_id):
     """Unlike a warble."""
     message = Message.query.get_or_404(message_id)
+    
+    # Log the current liked messages
+    liked_message_ids = [msg.id for msg in current_user.likes]
+    current_app.logger.debug(f"User {current_user.id} has liked message IDs: {liked_message_ids}")
 
     # Check if the like exists before attempting to remove it
     if current_user.has_liked_message(message):
@@ -109,3 +113,4 @@ def unlike_message(message_id):
         flash("You haven't liked this warble.", "info")
 
     return redirect(request.referrer or url_for('main.homepage'))
+
