@@ -1,42 +1,66 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block content %}
 
-{% block content %}
-
-  <div class="bg"></div>
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <ul class="list-group no-hover" id="messages">
-        <li class="list-group-item">
-          <a href="{{ url_for('users_show', user_id=message.user.id) }}">
-            <img src="{{ message.user.image_url }}" alt="" class="timeline-image">
-          </a>
-          <div class="message-area">
-            <div class="message-heading">
-              <a href="/users/{{ message.user.id }}">@{{ message.user.username }}</a>
-              {% if g.user %}
-                {% if g.user.id == message.user.id %}
-                  <form method="POST"
-                        action="/messages/{{ message.id }}/delete">
-                    <button class="btn btn-outline-danger">Delete</button>
-                  </form>
-                {% elif g.user.is_following(message.user) %}
-                  <form method="POST"
-                        action="/users/stop-following/{{ message.user.id }}">
-                    <button class="btn btn-primary">Unfollow</button>
-                  </form>
-                {% else %}
-                  <form method="POST" action="/users/follow/{{ message.user.id }}">
-                    <button class="btn btn-outline-primary btn-sm">Follow</button>
-                  </form>
-                {% endif %}
-              {% endif %}
-            </div>
-            <p class="single-message">{{ message.text }}</p>
-            <span class="text-muted">{{ message.timestamp.strftime('%d %B %Y') }}</span>
+<div class="bg"></div>
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <ul class="list-group no-hover" id="messages">
+      <li class="list-group-item">
+        <a href="{{ url_for('users_show', user_id=message.user.id) }}">
+          <img
+            src="{{ message.user.image_url }}"
+            alt=""
+            class="timeline-image"
+          />
+        </a>
+        <div class="message-area">
+          <div class="message-heading">
+            <a href="/users/{{ message.user.id }}"
+              >@{{ message.user.username }}</a
+            >
+            {% if g.user %} {% if g.user.id == message.user.id %}
+            <form method="POST" action="/messages/{{ message.id }}/delete">
+              <button class="btn btn-outline-danger">Delete</button>
+            </form>
+            {% elif g.user.is_following(message.user) %}
+            <form
+              method="POST"
+              action="/users/stop-following/{{ message.user.id }}"
+            >
+              <button class="btn btn-primary">Unfollow</button>
+            </form>
+            {% else %}
+            <form method="POST" action="/users/follow/{{ message.user.id }}">
+              <button class="btn btn-outline-primary btn-sm">Follow</button>
+            </form>
+            {% endif %} {% endif %}
           </div>
-        </li>
-      </ul>
-    </div>
+          <p class="single-message">{{ message.text }}</p>
+          <span class="text-muted"
+            >{{ message.timestamp.strftime('%d %B %Y') }}</span
+          >
+        </div>
+        <div class="d-flex align-items-center">
+          <form
+            method="POST"
+            action="{{ url_for('messages.like_message', message_id=message.id) }}"
+          >
+            {% if message in g.user.likes %}
+            <!-- Filled star for liked warble -->
+            <button type="submit" class="btn btn-link p-0 text-warning">
+              <i class="fas fa-star"></i>
+            </button>
+            {% else %}
+            <!-- Empty star for unliked warble -->
+            <button type="submit" class="btn btn-link p-0 text-secondary">
+              <i class="far fa-star"></i>
+            </button>
+            {% endif %}
+          </form>
+          <small class="text-muted">{{ message.liked_by.count() }} Likes</small>
+        </div>
+      </li>
+    </ul>
   </div>
+</div>
 
 {% endblock %}

@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_login import LoginManager, current_user
+from flask_debugtoolbar import DebugToolbarExtension
 from app.config.settings import config
 from app.models import db, User
 from app.routes import main_bp
@@ -81,6 +82,10 @@ def create_app(config_name=None):
         app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('TEST_DATABASE_URL', 'sqlite:///:memory:')
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
         app.config["WTF_CSRF_ENABLED"] = False
+
+    # initialize debugger toolbar
+    toolbar = DebugToolbarExtension()
+    toolbar.init_app(app)
 
     # Initialize extensions
     csrf.init_app(app)  # Initialize CSRF protection

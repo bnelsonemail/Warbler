@@ -48,6 +48,7 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_ECHO : bool
         Print all SQL statements to the console.
     """
+    LOG_LEVEL = "DEBUG"
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') 
     if not SQLALCHEMY_DATABASE_URI:
@@ -56,6 +57,7 @@ class DevelopmentConfig(Config):
     FLASK_ENV = 'development'
     USE_RELOADER = True
     SQLALCHEMY_ECHO = True
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     WTF_CSRF_SECRET_KEY = 'your-secret-key'
     WTF_CSRF_ENABLED = True  # Ensure CSRF protection is enabled
 

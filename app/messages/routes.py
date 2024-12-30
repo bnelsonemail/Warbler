@@ -56,34 +56,37 @@ def like_message(message_id):
     print(f"Form Data: {request.form}")
     print("====================================================")
     
+    # Fetch message
     message = Message.query.get_or_404(message_id)
+    liked_message_ids = {message.id for message in current_user.likes}  # Fetch all liked message IDs once
+    current_app.logger.debug(f"Received request to like message ID: {message_id}")
 
     try:
-        current_app.logger.debug(f"Received request to like message ID: {message_id}")
-
-        # Fetch message
-        message = Message.query.get_or_404(message_id)
-
         # Prevent users from liking their own messages
         if message.user_id == current_user.id:
             flash("You cannot like your own warble!", "danger")
-            return redirect(url_for('main.homepage'))
+            current_app.logger.debug(f"User {current_user.id} attempted to like their own warble {message_id}.")
+            return redirect(request.referrer or url_for('main.homepage'))
 
         # Check if already liked
-        if message in current_user.likes:
+        if message.id in liked_message_ids:
             flash("You already liked this warble.", "info")
+            current_app.logger.debug(f"User {current_user.id} has already liked message {message_id}.")
         else:
+            # Add the like
             current_user.likes.append(message)
             db.session.commit()
             flash("Warble liked!", "success")
+            current_app.logger.debug(f"User {current_user.id} liked message {message_id}.")
 
     except Exception as e:
         db.session.rollback()  # Ensure rollback if the transaction fails
         current_app.logger.error(f"Error processing like for message {message_id}: {e}")
-        return "An error occurred", 400
+        flash("An error occurred while liking the warble.", "danger")
+        return redirect(request.referrer or url_for('main.homepage'))
 
+    return redirect(request.referrer or url_for('main.homepage'))
 
-    return redirect(url_for('main.homepage'))
 
 
 @messages_bp.route('/messages/<int:message_id>/unlike', methods=['POST'])
@@ -92,11 +95,17 @@ def unlike_message(message_id):
     """Unlike a warble."""
     message = Message.query.get_or_404(message_id)
 
-    if message in current_user.likes:
-        current_user.likes.remove(message)
-        db.session.commit()
-        flash("Warble unliked.", "success")
+    # Check if the like exists before attempting to remove it
+    if current_user.has_liked_message(message):
+        try:
+            current_user.likes.remove(message)
+            db.session.commit()
+            flash("Warble unliked.", "success")
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Error unliking message {message_id}: {e}")
+            flash("An error occurred while unliking the warble.", "danger")
     else:
         flash("You haven't liked this warble.", "info")
 
-    return redirect(url_for('main.homepage'))
+    return redirect(request.referrer or url_for('main.homepage'))

@@ -84,6 +84,9 @@ class User(db.Model, UserMixin):
         lazy='dynamic'
     )
 
+
+
+
     def __repr__(self) -> str:
         return f"<User #{self.id}: {self.username}, {self.email}, Location: {self.location}>"
 
@@ -105,7 +108,9 @@ class User(db.Model, UserMixin):
 
     def has_liked_message(self, message: "Message") -> bool:
         """Check if the user has liked a specific message."""
-        return self.likes.filter_by(id=message.id).count() > 0
+        liked_message_ids = {like.message_id for like in self.likes}
+        return message.id in liked_message_ids
+
 
     def like_message(self, message: "Message") -> None:
         """Like a message if not already liked."""
