@@ -1,4 +1,5 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} 
+{% block content %}
 <div class="container-fluid p-0">
   <!-- Header Image Section -->
   <div style="position: relative; background-color: #f8f9fa">
@@ -111,12 +112,13 @@
             <a href="/users/{{ msg.user.id }}" class="text-decoration-none">
               <strong>@{{ msg.user.username }}</strong>
             </a>
-            <span class="text-muted small"
-              >{{ msg.timestamp.strftime('%d %B %Y') }}</span
-            >
+            <span class="text-muted small">
+              {{ msg.timestamp.strftime('%d %B %Y') }}
+            </span>
           </div>
           <p class="mb-1">{{ msg.text }}</p>
           <div class="d-flex align-items-center">
+            <!-- Like/Unlike Form -->
             <form
               method="POST"
               action="{{ url_for('messages.unlike_message', message_id=msg.id) if msg in g.user.likes else url_for('messages.like_message', message_id=msg.id) }}"
@@ -138,8 +140,20 @@
             <small class="text-muted">
               {{ msg.liked_by.all() | length }} Likes
             </small>
+            <!-- Delete Form -->
+            {% if msg.user.id == g.user.id %}
+            <form
+              action="{{ url_for('messages.delete_message', message_id=msg.id) }}"
+              method="POST"
+              class="ms-3"
+            >
+              {{ form.hidden_tag() }}
+              <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </form>
+            {% endif %}
           </div>
-          
         </div>
       </li>
       {% endfor %}

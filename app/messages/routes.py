@@ -4,7 +4,18 @@ from flask import Blueprint, render_template, redirect, flash, url_for, current_
 from flask_login import login_required, current_user
 from app.models import db, Message
 from app.forms import MessageForm
+import logging
 
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,  # Set the minimum log level
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
+# Create a logger
+logger = logging.getLogger(__name__)
+
+# Create message blueprint
 messages_bp = Blueprint('messages', __name__)
 
 
@@ -52,6 +63,10 @@ def messages_destroy(message_id: int) -> str:
 def like_message(message_id):
     """Like a warble."""
     print("===================================================")
+    current_app.logger.debug(f"Received like request for message {message_id} by user {current_user.id}")
+    logging.debug(f"User {current_user.id} attempting to like message {message_id}")
+    
+    
     print(f"Received request to like message ID: {message_id}")
     print(f"Form Data: {request.form}")
     print("====================================================")
@@ -74,8 +89,12 @@ def like_message(message_id):
             current_app.logger.debug(f"User {current_user.id} has already liked message {message_id}.")
         else:
             # Add the like
+            print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
+            current_app.logger.debug(f"Current user likes before: {[msg.id for msg in current_user.likes]}")
             current_user.likes.append(message)
             db.session.commit()
+            current_app.logger.debug(f"Current user likes after: {[msg.id for msg in current_user.likes]}")
+            print('+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++')
             flash("Warble liked!", "success")
             current_app.logger.debug(f"User {current_user.id} liked message {message_id}.")
 
@@ -114,3 +133,24 @@ def unlike_message(message_id):
 
     return redirect(request.referrer or url_for('main.homepage'))
 
+
+@messages_bp.route('/messages/<int:message_id>/delete', methods=['POST'])
+@login_required
+def delete_message(message_id):
+    """Delete a message."""
+    message = Message.query.get_or_404(message_id)
+
+    # Check if the current user owns the message
+    if message.user_id != current_user.id:
+        flash("Access unauthorized.", "danger")
+        return redirect(url_for('main.homepage'))  # Or redirect to another page
+
+    try:
+        db.session.delete(message)
+        db.session.commit()
+        flash("Message deleted.", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash("An error occurred while trying to delete the message.", "danger")
+    
+    return redirect(request.referrer or url_for('main.homepage'))

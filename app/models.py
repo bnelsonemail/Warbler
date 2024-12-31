@@ -33,12 +33,13 @@ class Likes(db.Model):
     """Mapping user likes to warbles."""
     __tablename__ = 'likes'
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
-    message_id = db.Column(db.Integer, db.ForeignKey('messages.id', ondelete='cascade'))
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # Ensure auto-increment
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'), nullable=False)
+    message_id = db.Column(db.Integer, db.ForeignKey('messages.id', ondelete='cascade'), nullable=False)
 
     def __repr__(self) -> str:
         return f"<Likes User {self.user_id} likes Message {self.message_id}>"
+
 
 
 # Association tables
@@ -81,7 +82,7 @@ class User(db.Model, UserMixin):
         'Message',
         secondary="likes",
         backref=db.backref('liked_by', lazy='dynamic'),
-        lazy='dynamic'
+        lazy='joined'
     )
 
 
