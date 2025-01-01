@@ -121,13 +121,13 @@ def confirm_password(user_id):
 
     form = PasswordConfirmForm()
     if form.validate_on_submit():
-        if check_password_hash(current_user.password, form.password.data):
+        if current_user.check_password(form.password.data):
             # Store a session variable to indicate the user is authorized to edit
             session['password_confirmed'] = True
             return redirect(url_for('users.edit_user', user_id=user_id))
         else:
-            flash("Incorrect password. Redirecting to the homepage.", "danger")
-            return redirect(url_for('users.list_users'))  # Redirect to homepage
+            flash("Incorrect password. Please try again.", "danger")
+            return render_template('users/confirm_password.html', form=form)
 
     return render_template('users/confirm_password.html', form=form)
 
