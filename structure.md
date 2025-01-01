@@ -52,6 +52,8 @@
 │   │   |   ├── index.html         # List of users
 │   │   |   ├── likes.html         # Like and unlikes
 │   │   |   ├── show.html          # Show user profile
+│   │   |   ├── search_results.html # Show search results
+│   │   |
 │   │   ├── base.html              # Base template (extends other pages)
 │   │   ├── home-anon.html         # Anonymous user home page
 │   │   ├── home.html              # Logged-in user home page

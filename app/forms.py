@@ -113,3 +113,9 @@ class PasswordConfirmForm(FlaskForm):
         render_kw={"placeholder": "Enter your password"}
     )
     submit = SubmitField('Confirm Password')
+    
+    
+class FollowForm(FlaskForm):
+    """Form for following/unfollowing users."""
+    submit = SubmitField('Follow')
+

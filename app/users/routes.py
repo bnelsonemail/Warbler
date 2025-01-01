@@ -6,24 +6,21 @@ import logging
 from flask import Blueprint, render_template, redirect, flash, url_for, request, current_app, session
 from flask_login import login_required, current_user
 from app.models import db, User, Message
-from app.forms import UserProfileForm, PasswordConfirmForm
+from app.forms import UserProfileForm, PasswordConfirmForm, FollowForm
 from werkzeug.security import check_password_hash
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
 
 
-@users_bp.route('/')
-def list_users() -> str:
-    """Page with listing of users."""
-    search = request.args.get('q')
-    page = request.args.get('page', 1, type=int)
-    per_page = 20  # Number of users per page
+@users_bp.route('/users', methods=['GET'])
+@login_required
+def list_users():
+    """List all users."""
+    form = FollowForm()  # Create an instance of the FollowForm
+    users = User.query.paginate(page=request.args.get('page', 1, type=int), per_page=20)
+    return render_template('users/index.html', users=users.items, pagination=users, form=form)
 
-    query = User.query.filter(User.username.like(f"%{search}%")) if search else User.query
-    users = query.paginate(page=page, per_page=per_page)
-
-    return render_template('users/index.html', users=users.items, pagination=users)
 
 
 
@@ -76,28 +73,36 @@ def users_followers(user_id: int) -> str:
     return render_template('users/followers.html', user=user)
 
 
-@users_bp.route('/follow/<int:follow_id>', methods=['POST'])
+@users_bp.route('/follow/<int:user_id>', methods=['POST'])
 @login_required
-def add_follow(follow_id: int) -> str:
-    """Add a follow for the currently-logged-in user."""
-    followed_user = User.query.get_or_404(follow_id)
-    current_user.following.append(followed_user)
-    db.session.commit()
-    flash(f"You are now following {followed_user.username}.", "success")
-    current_app.logger.debug(f"{current_user.username} started following {followed_user.username}")
-    return redirect(url_for('users.show_following', user_id=current_user.id))
+def follow_user(user_id):
+    """Follow a user."""
+    user_to_follow = User.query.get_or_404(user_id)
+
+    if user_to_follow in g.user.following:
+        flash(f"You are already following {user_to_follow.username}.", "warning")
+    else:
+        g.user.following.append(user_to_follow)
+        db.session.commit()
+        flash(f"You are now following {user_to_follow.username}!", "success")
+
+    return redirect(request.referrer or url_for('users.list_users'))
 
 
-@users_bp.route('/stop-following/<int:follow_id>', methods=['POST'])
+@users_bp.route('/unfollow/<int:user_id>', methods=['POST'])
 @login_required
-def stop_following(follow_id: int) -> str:
-    """Stop following this user."""
-    followed_user = User.query.get(follow_id)
-    current_user.following.remove(followed_user)
-    db.session.commit()
-    flash(f"You have unfollowed {followed_user.username}.", "info")
-    current_app.logger.debug(f"{current_user.username} unfollowed {followed_user.username}")
-    return redirect(url_for('users.show_following', user_id=current_user.id))
+def unfollow_user(user_id):
+    """Unfollow a user."""
+    user_to_unfollow = User.query.get_or_404(user_id)
+
+    if user_to_unfollow not in g.user.following:
+        flash(f"You are not following {user_to_unfollow.username}.", "warning")
+    else:
+        g.user.following.remove(user_to_unfollow)
+        db.session.commit()
+        flash(f"You have unfollowed {user_to_unfollow.username}.", "success")
+
+    return redirect(request.referrer or url_for('users.list_users'))
 
 
 @users_bp.route('/delete', methods=["POST"])
@@ -136,15 +141,13 @@ def confirm_password(user_id):
 @login_required
 def edit_user(user_id):
     """Edit the user's profile after password confirmation."""
-    print('=====================================================')
     current_app.logger.debug(f"Accessing edit_user for user_id: {user_id}")
-    print('======================================================')
+    current_app.logger.debug(f"Session password_confirmed: {session.get('password_confirmed')}")
+
     # Check if the session variable exists
     if not session.get('password_confirmed'):
         flash("You must confirm your password before editing your profile.", "warning")
         return redirect(url_for('users.confirm_password', user_id=user_id))
-
-    session.pop('password_confirmed', None)  # Clear the session variable after use
 
     user = User.query.get_or_404(user_id)
     if user.id != current_user.id:
@@ -152,7 +155,9 @@ def edit_user(user_id):
         return redirect(url_for('users.list_users'))
 
     form = UserProfileForm(obj=user)
+
     if form.validate_on_submit():
+        session.pop('password_confirmed', None)  # Clear only after form submission
         user.username = form.username.data
         user.email = form.email.data
         user.bio = form.bio.data
@@ -161,11 +166,28 @@ def edit_user(user_id):
         user.header_image_url = form.header_image_url.data
         db.session.commit()
         flash("Profile updated successfully!", "success")
-        return redirect(url_for('users.users_show', user_id=user_id))
+        return redirect(url_for('main.homepage', user_id=user_id))
 
     # Pass user_id explicitly to the template
     return render_template('users/edit.html', form=form, user=user, user_id=user.id)
 
+
+@users_bp.route('/search', methods=['GET', 'POST'])
+def search_users():
+    """Search for users by username or email."""
+    query = request.args.get('query', '').strip()
+
+    if not query:
+        flash("Please enter a search term.", "warning")
+        return redirect(url_for('users.list_users'))
+
+    # Search for users by username or email
+    users = User.query.filter(
+        (User.username.ilike(f"%{query}%")) | (User.email.ilike(f"%{query}%"))
+    ).all()
+
+    form = FollowForm()  # Pass a form to the template
+    return render_template('users/search_results.html', users=users, query=query, form=form)
 
 
 

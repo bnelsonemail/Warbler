@@ -29,10 +29,16 @@
     <ul class="nav navbar-nav navbar-right">
       {% if request.endpoint != None %}
       <li>
-        <form class="navbar-form navbar-right" action="/users">
-          <input name="q" class="form-control" placeholder="Search Warbler" id="search">
-          <button class="btn btn-default">
-            <span class="fa fa-search"></span>
+        <form class="navbar-form navbar-right" method="GET" action="{{ url_for('users.search_users') }}">
+          <input
+              name="query"
+              class="form-control"
+              placeholder="Search Warbler"
+              id="search"
+              required
+          >
+          <button class="btn btn-default" type="submit">
+              <span class="fa fa-search"></span>
           </button>
         </form>
       </li>
@@ -43,7 +49,7 @@
       {% else %}
       <li>
         <a href="/users/{{ g.user.id }}">
-          <img src="{{ g.user.image_url }}" alt="{{ g.user.username }}">
+          <img src="{{ g.user.image_url }}" alt="{{ g.user.username }}" class="rounded-circle" style="width: 40px; height: 40px;">
         </a>
       </li>
       <li><a href="/messages/new">New Message</a></li>

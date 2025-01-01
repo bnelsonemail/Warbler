@@ -3,19 +3,69 @@
 {% block content %}
 <div class="container mt-4">
     <div class="row">
+        <!-- User Details Section -->
+        <div class="col-md-4 text-center">
+            <img 
+                src="{{ user.image_url }}" 
+                alt="Profile image of {{ user.username }}" 
+                class="rounded-circle" 
+                style="width: 150px; height: 150px; object-fit: cover;">
+        </div>
         <div class="col-md-8">
-            <h1>{{ user.username }}</h1>
-            <p>Email: {{ user.email }}</p>
-            <p>Bio: {{ user.bio }}</p>
-            <p>Location: {{ user.location }}</p>
+            <h1 class="mb-3">@{{ user.username }}</h1>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Bio:</strong> {{ user.bio or 'No bio available.' }}</p>
+            <p><strong>Location:</strong> {{ user.location or 'N/A' }}</p>
             <p>
-                Liked Warbles: 
+                <strong>Liked Warbles:</strong>
                 <a href="{{ url_for('users.show_liked_warbles', user_id=user.id) }}">
                     {{ user.likes | length }}
+                </a>
+            </p>
+            <!-- Follow/Unfollow Button -->
+            <form method="POST" action="{{
+                url_for('users.follow_user', user_id=user.id)
+                if user not in g.user.following
+                else url_for('users.unfollow_user', user_id=user.id)
+            }}">
+                {{ form.hidden_tag() }}
+                {% if user != g.user %}
+                <button 
+                    type="submit" 
+                    class="btn btn-{{ 'primary' if user not in g.user.following else 'danger' }}">
+                    {{ 'Follow' if user not in g.user.following else 'Unfollow' }}
+                </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+    <hr>
+    <!-- User Stats Section -->
+    <div class="row mt-3">
+        <div class="col-md-3 text-center">
+            <h5>Messages</h5>
+            <p>
+                <a href="{{ url_for('users.users_show', user_id=user.id) }}" class="text-decoration-none">
+                    {{ user.messages | length }}
+                </a>
+            </p>
+        </div>
+        <div class="col-md-3 text-center">
+            <h5>Followers</h5>
+            <p>
+                <a href="{{ url_for('users.followers', user_id=user.id) }}" class="text-decoration-none">
+                    {{ user.followers | length }}
+                </a>
+            </p>
+        </div>
+        <div class="col-md-3 text-center">
+            <h5>Following</h5>
+            <p>
+                <a href="{{ url_for('users.following', user_id=user.id) }}" class="text-decoration-none">
+                    {{ user.following | length }}
                 </a>
             </p>
         </div>
     </div>
 </div>
 {% endblock %}
-

@@ -21,24 +21,29 @@ main_bp = Blueprint('main', __name__)
 
 
 @main_bp.route('/')
-def homepage() -> str:
-    """Show homepage.
-
-    - Authenticated users: Show the 100 most recent messages.
-    - Anonymous users: Show the anonymous homepage.
-    """
-    current_app.logger.info("Homepage accessed.")
+def homepage():
+    """Show homepage for logged-in users or anonymous users."""
     form = LikeForm()  # Create an instance of the LikeForm
     if current_user.is_authenticated:
         try:
-            messages = (Message.query.order_by(Message.timestamp.desc())
-                        .limit(100).all())
+            # Fetch messages from the logged-in user and the users they follow
+            messages = (Message.query
+                        .filter((Message.user_id == current_user.id) |
+                                (Message.user_id.in_([user.id for user in current_user.following])))
+                        .order_by(Message.timestamp.desc())
+                        .limit(100)
+                        .all())
         except SQLAlchemyError as e:
             current_app.logger.error(f"Database error fetching messages: {e}")
             flash("Error loading messages. Please try again later.", "danger")
             messages = []
+
+        # Pass current_user as 'user' to match the template
         return render_template('home.html', messages=messages, form=form, user=current_user)
+
     return render_template('home-anon.html', form=form)
+
+
 
 
 @main_bp.after_request

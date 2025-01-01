@@ -19,6 +19,7 @@
             >
             {% if g.user %} {% if g.user.id == message.user.id %}
             <form method="POST" action="/messages/{{ message.id }}/delete">
+              {{ form.hidden_tag() }}
               <button class="btn btn-outline-danger">Delete</button>
             </form>
             {% elif g.user.is_following(message.user) %}
@@ -26,10 +27,12 @@
               method="POST"
               action="/users/stop-following/{{ message.user.id }}"
             >
+            {{ form.hidden_tag() }}
               <button class="btn btn-primary">Unfollow</button>
             </form>
             {% else %}
             <form method="POST" action="/users/follow/{{ message.user.id }}">
+              {{ form.hidden_tag() }}
               <button class="btn btn-outline-primary btn-sm">Follow</button>
             </form>
             {% endif %} {% endif %}
@@ -44,6 +47,7 @@
             method="POST"
             action="{{ url_for('messages.like_message', message_id=message.id) }}"
           >
+          {{ form.hidden_tag() }}
             {% if message in g.user.likes %}
             <!-- Filled star for liked warble -->
             <button type="submit" class="btn btn-link p-0 text-warning">
