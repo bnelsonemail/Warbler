@@ -3,7 +3,7 @@
 import os
 import sys
 import logging
-from flask import Blueprint, render_template, redirect, flash, url_for, request, current_app, session
+from flask import Blueprint, render_template, redirect, flash, url_for, request, current_app, session, g
 from flask_login import login_required, current_user
 from app.models import db, User, Message
 from app.forms import UserProfileForm, PasswordConfirmForm, FollowForm
