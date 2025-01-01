@@ -5,6 +5,8 @@ from wtforms import StringField, PasswordField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 from flask_login import current_user
 from app.models import User
+from wtforms.validators import ValidationError
+
 
 
 class LikeForm(FlaskForm):
@@ -78,14 +80,17 @@ class UserProfileForm(FlaskForm):
     )
 
     def validate_username(self, username):
+        """validate username is unique"""
         existing_user = User.query.filter_by(username=username.data).first()
         if existing_user and existing_user.id != current_user.id:
             raise ValidationError("This username is already taken. Please choose a different one.")
 
     def validate_email(self, email):
+        """validate email is unique"""
         existing_email = User.query.filter_by(email=email.data).first()
         if existing_email and existing_email.id != current_user.id:
             raise ValidationError("This email is already in use. Please choose a different one.")
+
 
 
 
