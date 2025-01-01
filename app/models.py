@@ -86,10 +86,14 @@ class User(db.Model, UserMixin):
     )
 
 
-
-
     def __repr__(self) -> str:
         return f"<User #{self.id}: {self.username}, {self.email}, Location: {self.location}>"
+
+    def debug_password(self, plain_password: str):
+        """Debug the password matching process."""
+        is_valid = bcrypt.check_password_hash(self.password, plain_password)
+        current_app.logger.debug(f"Debug Password Match for {self.username}: {is_valid}")
+        return is_valid
 
     def set_password(self, password: str) -> None:
         """Hash and set the password for the user."""

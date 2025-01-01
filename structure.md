@@ -18,13 +18,6 @@
 │   ├── users/                     # User-related routes and logic
 │   │   ├── __init__.py            # Init for users blueprint
 │   │   ├── routes.py              # Routes for user profiles, followers
-│   │   └── templates/             # Templates for user-related pages
-│   │       ├── detail.html        # User profile detail
-│   │       ├── edit.html          # Edit user profile
-│   │       ├── followers.html     # View followers
-│   │       ├── following.html     # View following
-│   │       ├── index.html         # List of users
-│   │       ├── show.html          # Show user profile
 │   |
 │   ├── messages/                  # Message-related routes and logic
 │   │   ├── __init__.py            # Init for messages blueprint
@@ -46,9 +39,19 @@
 │   │       └── style.css          # Main stylesheet for the app
 │   |
 │   ├── templates/                 # Base templates shared across the app
-│   │   └── templates/             # Templates for auth-related pages
+│   │   └── auth/                  # Templates for auth-related pages
 │   │   |   ├── login.html         # Login page
-│   │   |   ├── signup.html        # Signup page
+│   │   |   ├── register.html      # Signup page
+│   │   |   ├── test.html
+│   │   └── users/                 # Templates for user-related pages
+│   │   |   ├── confirm_password.html  # confirms password before edit page       
+│   │   |   ├── detail.html        # User profile detail  
+│   │   |   ├── edit.html          # Edit user profile
+│   │   |   ├── followers.html     # View followers    
+│   │   |   ├── following.html     # View following
+│   │   |   ├── index.html         # List of users
+│   │   |   ├── likes.html         # Like and unlikes
+│   │   |   ├── show.html          # Show user profile
 │   │   ├── base.html              # Base template (extends other pages)
 │   │   ├── home-anon.html         # Anonymous user home page
 │   │   ├── home.html              # Logged-in user home page
@@ -71,6 +74,11 @@
 │   │   └── test_user_views.py     # Tests for User views
 │
 ├── archive/                       # Backup/archive files
+│
+├── scripts/ 
+|   ├── seed.py                    # Seed file for the database
+|   ├── debug_passwords.py         # Standalone program to debug passwords 
+|   ├── fix_plaintext_passwords.py # Standalone program to fix plaintext passwords
 │
 ├── .gitignore                     # Specifies files for Git to ignore
 ├── requirements.txt               # List of project dependencies
