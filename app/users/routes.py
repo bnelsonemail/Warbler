@@ -136,6 +136,9 @@ def confirm_password(user_id):
 @login_required
 def edit_user(user_id):
     """Edit the user's profile after password confirmation."""
+    print('=====================================================')
+    current_app.logger.debug(f"Accessing edit_user for user_id: {user_id}")
+    print('======================================================')
     # Check if the session variable exists
     if not session.get('password_confirmed'):
         flash("You must confirm your password before editing your profile.", "warning")
@@ -160,7 +163,9 @@ def edit_user(user_id):
         flash("Profile updated successfully!", "success")
         return redirect(url_for('users.users_show', user_id=user_id))
 
-    return render_template('users/edit.html', form=form, user=user)
+    # Pass user_id explicitly to the template
+    return render_template('users/edit.html', form=form, user=user, user_id=user.id)
+
 
 
 
