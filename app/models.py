@@ -126,6 +126,26 @@ class User(db.Model, UserMixin):
         current_app.logger.debug(f"Current user likes: {[msg.id for msg in current_user.likes]}")
         if self.has_liked_message(message):
             self.likes.remove(message)
+            
+    def toggle_follow(user_to_follow, action):
+        """Follow or unfollow a user."""
+        if not user_to_follow:
+            return False, "User not found."
+
+        if action == 'follow':
+            if user_to_follow in current_user.following:
+                return False, "You are already following this user."
+            current_user.following.append(user_to_follow)
+            return True, f"You are now following {user_to_follow.username}!"
+
+        elif action == 'unfollow':
+            if user_to_follow not in current_user.following:
+                return False, "You are not following this user."
+            current_user.following.remove(user_to_follow)
+            return True, f"You have unfollowed {user_to_follow.username}."
+
+        return False, "Invalid action."
+
 
     # Flask-Login required methods
     @property

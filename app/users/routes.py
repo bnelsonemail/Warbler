@@ -8,6 +8,8 @@ from flask_login import login_required, current_user
 from app.models import db, User, Message
 from app.forms import UserProfileForm, PasswordConfirmForm, FollowForm
 from werkzeug.security import check_password_hash
+from app.utils.session import is_session_expired
+
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -72,6 +74,13 @@ def users_followers(user_id: int) -> str:
 def follow_user(user_id):
     """Follow a user."""
     user_to_follow = User.query.get_or_404(user_id)
+    print('=============================================')
+    current_app.logger.debug(f"User {g.user.username} attempting to follow {user_to_follow.username}.")
+    print('=============================================')
+    
+    if not g.user:
+        flash("You must be logged in to follow users.", "danger")
+        return redirect(url_for('auth.login'))
 
     if user_to_follow in g.user.following:
         flash(f"You are already following {user_to_follow.username}.", "warning")
@@ -82,12 +91,28 @@ def follow_user(user_id):
 
     return redirect(request.referrer or url_for('users.list_users'))
 
+# @users_bp.route('/follow/<int:user_id>', methods=['POST'])
+# @login_required
+# def follow_user(user_id):
+#     user_to_follow = User.query.get_or_404(user_id)
+#     success, message = toggle_follow(user_to_follow, 'follow')
+#     flash(message, "success" if success else "warning")
+#     return redirect(request.referrer or url_for('users.list_users'))
+
+
 
 @users_bp.route('/unfollow/<int:user_id>', methods=['POST'])
 @login_required
 def unfollow_user(user_id):
     """Unfollow a user."""
     user_to_unfollow = User.query.get_or_404(user_id)
+    print('=============================================')
+    current_app.logger.debug(f"User {g.user.username} attempting to unfollow {user_to_unfollow.username}.")
+    print('=============================================')
+
+    if not g.user:
+        flash("You must be logged in to unfollow users.", "danger")
+        return redirect(url_for('auth.login'))
 
     if user_to_unfollow not in g.user.following:
         flash(f"You are not following {user_to_unfollow.username}.", "warning")
@@ -97,6 +122,7 @@ def unfollow_user(user_id):
         flash(f"You have unfollowed {user_to_unfollow.username}.", "success")
 
     return redirect(request.referrer or url_for('users.list_users'))
+
 
 
 @users_bp.route('/delete', methods=["POST"])
@@ -123,6 +149,7 @@ def confirm_password(user_id):
         if current_user.check_password(form.password.data):
             # Store a session variable to indicate the user is authorized to edit
             session['password_confirmed'] = True
+            session['password_confirmed_at'] = datetime.now().isoformat()  # Store timestamp
             return redirect(url_for('users.edit_user', user_id=user_id))
         else:
             flash("Incorrect password. Please try again.", "danger")
@@ -139,8 +166,8 @@ def edit_user(user_id):
     current_app.logger.debug(f"Session password_confirmed: {session.get('password_confirmed')}")
 
     # Check if the session variable exists
-    if not session.get('password_confirmed'):
-        flash("You must confirm your password before editing your profile.", "warning")
+    if not session.get('password_confirmed') or is_session_expired():
+        flash("Session expired. Please confirm your password again.", "warning")
         return redirect(url_for('users.confirm_password', user_id=user_id))
 
     user = User.query.get_or_404(user_id)
