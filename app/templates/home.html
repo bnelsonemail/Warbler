@@ -1,5 +1,4 @@
-{% extends 'base.html' %} 
-{% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="container-fluid p-0">
   <!-- Header Image Section -->
   <div style="position: relative; background-color: #f8f9fa">
@@ -73,12 +72,13 @@
         </h5>
       </div>
       <div class="col-md-auto text-end">
+        {% if user.is_authenticated %}
         <a
-          href="/users/{{ g.user.id }}/edit"
-          class="btn btn-outline-primary btn-sm"
+          href="{{ url_for('users.confirm_password', user_id=user.id) }}"
+          class="btn btn-primary"
+          >Edit Profile</a
         >
-          <i class="fa fa-edit"></i> Edit Profile
-        </a>
+        {% endif %}
       </div>
     </div>
   </div>
@@ -124,15 +124,22 @@
               action="{{ url_for('messages.unlike_message', message_id=msg.id) if msg in g.user.likes else url_for('messages.like_message', message_id=msg.id) }}"
               class="me-2"
             >
-              {{ form.hidden_tag() }}
-              {% if msg in g.user.likes %}
+              {{ form.hidden_tag() }} {% if msg in g.user.likes %}
               <!-- Filled star for liked warble -->
-              <button type="submit" class="btn btn-link p-0 text-warning" title="Unlike">
+              <button
+                type="submit"
+                class="btn btn-link p-0 text-warning"
+                title="Unlike"
+              >
                 <i class="fas fa-star"></i>
               </button>
               {% else %}
               <!-- Empty star for unliked warble -->
-              <button type="submit" class="btn btn-link p-0 text-secondary" title="Like">
+              <button
+                type="submit"
+                class="btn btn-link p-0 text-secondary"
+                title="Like"
+              >
                 <i class="far fa-star"></i>
               </button>
               {% endif %}
@@ -148,7 +155,11 @@
               class="ms-3"
             >
               {{ form.hidden_tag() }}
-              <button type="submit" class="btn btn-danger btn-sm" title="Delete">
+              <button
+                type="submit"
+                class="btn btn-danger btn-sm"
+                title="Delete"
+              >
                 <i class="fas fa-trash-alt"></i>
               </button>
             </form>

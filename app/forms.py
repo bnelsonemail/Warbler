@@ -102,3 +102,14 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired(), EqualTo('password', message='Passwords must match')
     ])
+
+
+
+class PasswordConfirmForm(FlaskForm):
+    """Form for confirming password before profile edit."""
+    password = PasswordField(
+        'Password',
+        validators=[DataRequired()],
+        render_kw={"placeholder": "Enter your password"}
+    )
+    submit = SubmitField('Confirm Password')

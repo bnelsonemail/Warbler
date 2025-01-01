@@ -37,8 +37,9 @@ def homepage() -> str:
             current_app.logger.error(f"Database error fetching messages: {e}")
             flash("Error loading messages. Please try again later.", "danger")
             messages = []
-        return render_template('home.html', messages=messages, form=form)
+        return render_template('home.html', messages=messages, form=form, user=current_user)
     return render_template('home-anon.html', form=form)
+
 
 @main_bp.after_request
 def add_header(response):

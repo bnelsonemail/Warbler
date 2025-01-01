@@ -3,10 +3,11 @@
 import os
 import sys
 import logging
-from flask import Blueprint, render_template, redirect, flash, url_for, request, current_app
+from flask import Blueprint, render_template, redirect, flash, url_for, request, current_app, session
 from flask_login import login_required, current_user
 from app.models import db, User, Message
-from app.forms import UserProfileForm
+from app.forms import UserProfileForm, PasswordConfirmForm
+from werkzeug.security import check_password_hash
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -110,35 +111,56 @@ def delete_user() -> str:
     return redirect(url_for('auth.login'))
 
 
-@users_bp.route('/<int:user_id>/edit', methods=["GET", "POST"])
+@users_bp.route('/<int:user_id>/confirm-password', methods=['GET', 'POST'])
+@login_required
+def confirm_password(user_id):
+    """Route to confirm password before allowing profile edit."""
+    if user_id != current_user.id:
+        flash("Unauthorized access.", "danger")
+        return redirect(url_for('users.users_show', user_id=current_user.id))
+
+    form = PasswordConfirmForm()
+    if form.validate_on_submit():
+        if check_password_hash(current_user.password, form.password.data):
+            # Store a session variable to indicate the user is authorized to edit
+            session['password_confirmed'] = True
+            return redirect(url_for('users.edit_user', user_id=user_id))
+        else:
+            flash("Incorrect password. Redirecting to the homepage.", "danger")
+            return redirect(url_for('users.list_users'))  # Redirect to homepage
+
+    return render_template('users/confirm_password.html', form=form)
+
+
+@users_bp.route('/<int:user_id>/edit', methods=['GET', 'POST'])
 @login_required
 def edit_user(user_id):
-    """Edit current user profile."""
-    if current_user.id != user_id:
-        flash("You do not have permission to edit this profile.", "danger")
-        return redirect(url_for('users.users_show', user_id=user_id))
+    """Edit the user's profile after password confirmation."""
+    # Check if the session variable exists
+    if not session.get('password_confirmed'):
+        flash("You must confirm your password before editing your profile.", "warning")
+        return redirect(url_for('users.confirm_password', user_id=user_id))
+
+    session.pop('password_confirmed', None)  # Clear the session variable after use
 
     user = User.query.get_or_404(user_id)
-    form = UserProfileForm(obj=user)  # Populate form with current user data
+    if user.id != current_user.id:
+        flash("You are not authorized to edit this profile.", "danger")
+        return redirect(url_for('users.list_users'))
 
-    # Pass current_user explicitly to the form
-    form.current_user = current_user
-
+    form = UserProfileForm(obj=user)
     if form.validate_on_submit():
-        # Update user fields with form data
         user.username = form.username.data
         user.email = form.email.data
-        user.bio = form.bio.data or None
-        user.location = form.location.data or None
-        user.image_url = form.image_url.data or None
-        user.header_image_url = form.header_image_url.data or None
-
-        # Save changes to the database
+        user.bio = form.bio.data
+        user.location = form.location.data
+        user.image_url = form.image_url.data
+        user.header_image_url = form.header_image_url.data
         db.session.commit()
         flash("Profile updated successfully!", "success")
-        return redirect(url_for('users.users_show', user_id=user.id))
+        return redirect(url_for('users.users_show', user_id=user_id))
 
-    return render_template('users/edit.html', form=form, user_id=user_id)
+    return render_template('users/edit.html', form=form, user=user)
 
 
 
@@ -148,3 +170,5 @@ def show_liked_warbles(user_id):
     """Show all warbles liked by the user."""
     user = User.query.get_or_404(user_id)
     return render_template('users/likes.html', user=user)
+
+
