@@ -6,6 +6,7 @@ import logging
 from flask import Blueprint, render_template, redirect, flash, url_for, request, current_app
 from flask_login import login_required, current_user
 from app.models import db, User, Message
+from app.forms import UserProfileForm
 
 users_bp = Blueprint('users', __name__, url_prefix='/users')
 
@@ -109,12 +110,36 @@ def delete_user() -> str:
     return redirect(url_for('auth.login'))
 
 
-@users_bp.route('/<int:user_id>/edit')
+@users_bp.route('/<int:user_id>/edit', methods=["GET", "POST"])
 @login_required
-def edit_user():
-    """edit current user profile."""
+def edit_user(user_id):
+    """Edit current user profile."""
+    if current_user.id != user_id:
+        flash("You do not have permission to edit this profile.", "danger")
+        return redirect(url_for('users.users_show', user_id=user_id))
+
     user = User.query.get_or_404(user_id)
-    return render_template('users/edit.html', user=user)
+    form = UserProfileForm(obj=user)  # Populate form with current user data
+
+    # Pass current_user explicitly to the form
+    form.current_user = current_user
+
+    if form.validate_on_submit():
+        # Update user fields with form data
+        user.username = form.username.data
+        user.email = form.email.data
+        user.bio = form.bio.data or None
+        user.location = form.location.data or None
+        user.image_url = form.image_url.data or None
+        user.header_image_url = form.header_image_url.data or None
+
+        # Save changes to the database
+        db.session.commit()
+        flash("Profile updated successfully!", "success")
+        return redirect(url_for('users.users_show', user_id=user.id))
+
+    return render_template('users/edit.html', form=form, user_id=user_id)
+
 
 
 @users_bp.route('/users/<int:user_id>/likes')

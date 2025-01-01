@@ -3,6 +3,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, SubmitField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
+from flask_login import current_user
 
 
 class LikeForm(FlaskForm):
@@ -74,6 +75,13 @@ class UserProfileForm(FlaskForm):
         '(Optional) Header Image URL',
         render_kw={"placeholder": "Optional: Add a header image URL"}
     )
+
+    def validate_username(self, username):
+        if hasattr(self, 'current_user') and username.data != self.current_user.username:
+            existing_user = User.query.filter_by(username=username.data).first()
+            if existing_user:
+                raise ValidationError("This username is already taken. Please choose a different one.")
+
 
 
 class RegistrationForm(FlaskForm):
