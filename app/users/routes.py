@@ -28,14 +28,8 @@ def list_users():
 @users_bp.route('/<int:user_id>')
 def users_show(user_id: int) -> str:
     """Show user profile."""
-    print("================================")
-    print(f"Requested user_id: {user_id}")
     user = User.query.get_or_404(user_id)
-    print("User fetched:", user)
-    print("+++++++++++++++++++++++++++")
-    print(f"Header Image URL: {user.header_image_url}")
-    print(f"Profile Image URL: {user.image_url}")
-    print("================================")
+    follow_form = FollowForm()
     page = request.args.get('page', 1, type=int)
     per_page = 20
 
@@ -51,7 +45,7 @@ def users_show(user_id: int) -> str:
         current_app.logger.error(f"Error finding template: {e}")
         raise
 
-    return render_template('users/show.html', user=user, messages=messages.items, pagination=messages)
+    return render_template('users/show.html', user=user, messages=messages.items, pagination=messages, follow_form=follow_form)
 
 
 
@@ -186,8 +180,8 @@ def search_users():
         (User.username.ilike(f"%{query}%")) | (User.email.ilike(f"%{query}%"))
     ).all()
 
-    form = FollowForm()  # Pass a form to the template
-    return render_template('users/search_results.html', users=users, query=query, form=form)
+    follow_form = FollowForm()  # Pass a form to the template
+    return render_template('users/search_results.html', users=users, query=query, follow_form=follow_form)
 
 
 

@@ -8,7 +8,7 @@
             <img 
                 src="{{ user.image_url }}" 
                 alt="Profile image of {{ user.username }}" 
-                class="rounded-circle" 
+                class="rounded-circle border border-secondary" 
                 style="width: 150px; height: 150px; object-fit: cover;">
         </div>
         <div class="col-md-8">
@@ -22,21 +22,22 @@
                     {{ user.likes | length }}
                 </a>
             </p>
+
             <!-- Follow/Unfollow Button -->
+            {% if user != g.user %}
             <form method="POST" action="{{
                 url_for('users.follow_user', user_id=user.id)
                 if user not in g.user.following
                 else url_for('users.unfollow_user', user_id=user.id)
             }}">
-                {{ form.hidden_tag() }}
-                {% if user != g.user %}
+                {{ follow_form.hidden_tag() }}
                 <button 
                     type="submit" 
                     class="btn btn-{{ 'primary' if user not in g.user.following else 'danger' }}">
                     {{ 'Follow' if user not in g.user.following else 'Unfollow' }}
                 </button>
-                {% endif %}
             </form>
+            {% endif %}
         </div>
     </div>
     <hr>
